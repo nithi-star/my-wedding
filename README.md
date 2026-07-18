@@ -1,65 +1,79 @@
-# Ava & Noah — Wedding Invitation
+# Nithisha & Antony Vivek — Wedding Invitation
 
-An elegant, minimal wedding invitation site built with Next.js 14 (App Router),
-TypeScript, and Tailwind CSS. Guests land on a sealed envelope; tapping the wax
-seal opens it into the full invitation — names, story, schedule, a live
-countdown, a photo gallery, and an RSVP form.
+An elegant, premium digital wedding invitation built with Next.js 14 (App Router), TypeScript, and Tailwind CSS. 
 
-## Getting started
+Guests land on a beautifully animated, centered invitation card featuring custom gold styling and a beating heart seal. Tapping "Open Invitation" triggers an organic transition: the card slides away, romantic background music begins, and the guest enters the main invitation containing a countdown, ceremony schedule, scripture verse, and an interactive Guest Wishes board.
 
-```bash
-npm install
-npm run dev
-```
+---
 
-Open http://localhost:3000.
+## Features
 
-## Everything you need to edit lives in one file
+- ** Wax Heart Greeting Card**: Centered envelope card with a beating gold heart badge that unlocks the site and starts the ambient music.
+- **Dynamic Guest Greeting**: Reads `?to=GuestName` or `?name=GuestName` from the URL client-side to greet each guest personally (e.g., `?to=Klaus`). Falls back to "Family & Friends".
+- **Ambient Music Player**: Soft background music controls that fade in smoothly upon unlocking.
+- **Drifting Canvas Particles**: A canvas background rendering falling rose petals and gold flakes that drifts gracefully behind the content.
+- **Sparkle Overlays**: A light, interactive cursor sparkle effect that scatters golden stars on click or tap.
+- **Countdown Timer**: A live countdown clock counting down the days, hours, minutes, and seconds to the ceremony.
+- **Global Guest Book (Wishes)**: A fully functional Guest Book board allowing guests to submit congratulations and blessings. Supports local browser cache fallback and live cloud synchronization.
 
-Open `lib/config.ts`. That's it — names, wedding date, venue, your story,
-the schedule, gallery captions, registry link, RSVP deadline, and contact
-email are all there. Nothing else needs to change for day-to-day content
-edits.
+---
 
-## Adding real photos
+## Getting Started
 
-Drop your images into `public/gallery/` (matching the filenames in
-`lib/config.ts`, or update the paths). Then in `components/Gallery.tsx`,
-replace the placeholder `<div>` with:
+### Local Development
 
-```tsx
-import Image from "next/image";
+1. Install project dependencies:
+   ```bash
+   npm install
+   ```
 
-<Image src={img.src} alt={img.alt} fill className="object-cover" />
-```
+2. Start the local Next.js development server:
+   ```bash
+   npm run dev
+   ```
 
-## Connecting the RSVP form
+3. Open [http://localhost:3000](http://localhost:3000) (or `http://localhost:3000/?to=Klaus` to test guest naming).
 
-`app/api/rsvp/route.ts` currently just logs submissions to your server
-console — it won't send you anything by default. Pick one:
+---
 
-- **Easiest:** skip the API route and point `rsvp.endpoint` in
-  `lib/config.ts` at a [Formspree](https://formspree.io) or
-  [Getform](https://getform.io) URL. Both give you a hosted endpoint and
-  email you every submission, no backend code required.
-- **Email yourself:** wire `app/api/rsvp/route.ts` up to
-  [Resend](https://resend.com) or Postmark.
-- **Spreadsheet:** use the Google Sheets API or a bridge like
-  [Sheet.best](https://sheet.best).
+## Configuration
 
-## Design notes
+Everything you need to edit day-to-day text content lives in one file: **[lib/config.ts](file:///c:/Users/nithi/Downloads/wedding-invite/wedding-invite/lib/config.ts)**. 
+Open this file to customize:
+*   Bride & Groom names
+*   Parents' names
+*   Event dates and display strings
+*   Schedule times, venues, Google Maps links, and notes
+*   Bible verse quotes and references
 
-- Palette: bone linen paper, deep pine green, and a soft brass gold —
-  chosen to avoid the generic "AI wedding site" look (no cream + terracotta,
-  no dark-mode neon).
-- Type: Fraunces (display/italic) paired with Inter (body/utility).
-- Signature interaction: the sealed envelope on load. Click/tap the wax
-  seal to open it. Respects `prefers-reduced-motion`.
-- The countdown, RSVP form, and envelope are client components; everything
-  else renders as a server component for a fast first paint.
+---
+
+## Connecting the Database (Supabase)
+
+The Guest Book board works out of the box locally using `localStorage`. For production deployment, you can connect a free-tier **Supabase** database so wishes are shared globally:
+
+1. Create a free account at [Supabase](https://supabase.com) and start a new project.
+2. In the **SQL Editor**, click **New Query**, paste the following script, and click **Run** to set up the database table and security permissions:
+   ```sql
+   create table public.wishes (
+     id bigint generated always as identity primary key,
+     name text not null,
+     message text not null,
+     created_at timestamp with time zone default now() not null
+   );
+
+   alter table public.wishes enable row level security;
+
+   create policy "Allow public read access" on public.wishes for select using (true);
+   create policy "Allow public insert access" on public.wishes for insert with check (true);
+   ```
+3. Copy your project's **URL** and **Anon Key** from Settings -> API.
+4. Set them as environment variables on Vercel:
+   *   `NEXT_PUBLIC_SUPABASE_URL`
+   *   `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+---
 
 ## Deploying
 
-The fastest path is [Vercel](https://vercel.com/new) — connect the repo and
-it deploys automatically. Any Node host that supports Next.js works too
-(`npm run build && npm run start`).
+The fastest deployment path is [Vercel](https://vercel.com/new). Simply connect your GitHub repository, configure your two Supabase environment variables, and it will deploy automatically.
